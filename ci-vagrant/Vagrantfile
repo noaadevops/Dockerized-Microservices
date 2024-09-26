@@ -1,0 +1,32 @@
+require 'yaml'
+
+# Load configuration from settings.yaml
+settings = YAML.load_file(File.join(File.dirname(__FILE__), 'settings.yaml'))
+
+Vagrant.configure("2") do |config|
+  # Set the base box for all VMs
+  config.vm.box = settings['box_name']
+  config.vm.box_check_update = false
+
+  # Forward port 8080 from guest to host
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+
+  # Define each VM using settings from settings.yaml
+  settings['vm'].each do |vm_config|
+    config.vm.define vm_config['name'] do |vm|
+      vm.vm.hostname = vm_config['name']
+      vm.vm.network "private_network", ip: vm_config['ip']
+      vm.vm.synced_folder ".", "/vagrant", disabled: false
+
+      # Configure VMware Fusion provider
+      vm.vm.provider "vmware_fusion" do |vb|
+        vb.gui = false
+        vb.memory = vm_config['memory']
+        vb.cpus = vm_config['cpus']
+      end
+
+      # Provision VM with the external bash script
+      vm.vm.provision "shell", path: "jenkins.sh"
+    end
+  end
+end
