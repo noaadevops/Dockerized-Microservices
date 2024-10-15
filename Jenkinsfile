@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                git branch: 'main', url: 'https://github.com/shegerbootcamp/microservice-shoping-app.git'
+                git branch: 'main', url: 'https://github.com/noaadevops/microservice-shoping-app.git'
                 // Add additional build steps here, e.g., compiling code, running tests, etc.
             }
         }
